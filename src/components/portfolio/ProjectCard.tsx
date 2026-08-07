@@ -1,0 +1,160 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { EASE_SAKURA } from "@/lib/motion";
+
+interface ProjectCardProps {
+  slug: string;
+  title: string;
+  linkType: "CASE_STUDY" | "EXTERNAL";
+  externalUrl?: string | null;
+  logoPath?: string | null;
+  logoAlt?: string | null;
+  videoPath?: string | null;
+  needBig?: boolean;
+  index?: number;
+  className?: string;
+}
+
+export function ProjectCard({
+  slug,
+  title,
+  linkType,
+  externalUrl,
+  logoPath,
+  logoAlt,
+  videoPath,
+  needBig = false,
+  index = 0,
+  className = "",
+}: ProjectCardProps) {
+  const [active, setActive] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  const pointerX = useMotionValue(0.5);
+  const pointerY = useMotionValue(0.5);
+  const rotateX = useSpring(useTransform(pointerY, [0, 1], [7, -7]), {
+    stiffness: 180,
+    damping: 22,
+  });
+  const rotateY = useSpring(useTransform(pointerX, [0, 1], [-9, 9]), {
+    stiffness: 180,
+    damping: 22,
+  });
+  const glowX = useTransform(pointerX, (v) => `${v * 100}%`);
+  const glowY = useTransform(pointerY, (v) => `${v * 100}%`);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    if (!videoRef.current) return;
+    if (active && !reducedMotion) {
+      videoRef.current.play().catch(() => undefined);
+    } else {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, [active, reducedMotion]);
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (reduced) return;
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    pointerX.set((event.clientX - rect.left) / rect.width);
+    pointerY.set((event.clientY - rect.top) / rect.height);
+  };
+
+  const handleLeave = () => {
+    setActive(false);
+    pointerX.set(0.5);
+    pointerY.set(0.5);
+  };
+
+  const href = linkType === "CASE_STUDY" ? `/portfolio/${slug}` : externalUrl ?? "#";
+  const isExternal = linkType === "EXTERNAL";
+
+  const card = (
+    <motion.div
+      ref={cardRef}
+      className={`portfolio-card ${active ? "is-active" : ""} ${className}`}
+      style={reduced ? undefined : { rotateX, rotateY, transformPerspective: 1100 }}
+      onPointerMove={handlePointerMove}
+      onMouseEnter={() => setActive(true)}
+      onMouseLeave={handleLeave}
+      onFocus={() => setActive(true)}
+      onBlur={handleLeave}
+      initial={reduced ? false : { opacity: 0, y: 48, filter: "blur(12px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.75, delay: (index % 3) * 0.1, ease: EASE_SAKURA }}
+    >
+      {!reduced && (
+        <motion.span
+          className="portfolio-card-glow"
+          style={{ left: glowX, top: glowY }}
+          animate={{ opacity: active ? 0.65 : 0 }}
+          transition={{ duration: 0.4 }}
+          aria-hidden
+        />
+      )}
+
+      {videoPath && !reducedMotion && (
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          loop
+          preload="none"
+          aria-hidden
+          className={needBig ? "need-big" : ""}
+        >
+          <source src={videoPath} type="video/mp4" />
+        </video>
+      )}
+
+      {logoPath && (
+        <Image
+          src={logoPath}
+          alt={logoAlt ?? title}
+          width={160}
+          height={80}
+          className="portfolio_item_img"
+        />
+      )}
+
+      <span className="portfolio-card-label">{title}</span>
+    </motion.div>
+  );
+
+  if (isExternal) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={title}
+        className="portfolio-card-link"
+      >
+        {card}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} title={title} className="portfolio-card-link">
+      {card}
+    </Link>
+  );
+}

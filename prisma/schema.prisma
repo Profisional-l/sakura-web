@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum LinkType {
+  CASE_STUDY
+  EXTERNAL
+}
+
+enum BlockType {
+  IMAGE
+  TEXT_SECTION
+}
+
+enum FeedItemType {
+  PROJECT_CARD
+  IMAGE_BANNER
+  VIDEO_BANNER
+  PLAYABLE_VIDEO
+}
+
+model Category {
+  id        String              @id @default(cuid())
+  slug      String              @unique
+  name      String
+  sortOrder Int                 @default(0)
+  feedItems PortfolioFeedItem[]
+  projects  ProjectCategory[]
+}
+
+model MediaAsset {
+  id        String   @id @default(cuid())
+  filename  String
+  path      String
+  mimeType  String
+  mediaType MediaType
+  alt       String?
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  projectLogos      Project[]           @relation("ProjectLogo")
+  projectCardVideos Project[]           @relation("ProjectCardVideo")
+  caseStudyImages   CaseStudyBlock[]
+  feedItems         PortfolioFeedItem[] @relation("FeedMedia")
+  feedPosters       PortfolioFeedItem[] @relation("FeedPoster")
+}
+
+model Project {
+  id                 String            @id @default(cuid())
+  slug               String            @unique
+  title              String
+  subtitle           String?
+  status             ProjectStatus     @default(DRAFT)
+  linkType           LinkType          @default(EXTERNAL)
+  externalUrl        String?
+  logoAssetId        String?
+  logoAsset          MediaAsset?       @relation("ProjectLogo", fields: [logoAssetId], references: [id])
+  cardVideoAssetId   String?
+  cardVideoAsset     MediaAsset?       @relation("ProjectCardVideo", fields: [cardVideoAssetId], references: [id])
+  homeFeatured       Boolean           @default(false)
+  homeSortOrder      Int               @default(0)
+  seoTitle           String?
+  seoDescription     String?
+  caseStudyTitle     String?
+  caseStudySubtitle  String?
+  categories         ProjectCategory[]
+  caseStudyBlocks    CaseStudyBlock[]
+  feedItems          PortfolioFeedItem[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+model ProjectCategory {
+  id         String   @id @default(cuid())
+  projectId  String
+  categoryId String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, categoryId])
+}
+
+model CaseStudyBlock {
+  id           String      @id @default(cuid())
+  projectId    String
+  project      Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  blockType    BlockType
+  sortOrder    Int         @default(0)
+  title        String?
+  content      String?
+  imageAssetId String?
+  imageAsset   MediaAsset? @relation(fields: [imageAssetId], references: [id])
+}
+
+model PortfolioFeedItem {
+  id            String       @id @default(cuid())
+  categoryId    String
+  category      Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  itemType      FeedItemType
+  sortOrder     Int          @default(0)
+  projectId     String?
+  project       Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  mediaAssetId  String?
+  mediaAsset    MediaAsset?  @relation("FeedMedia", fields: [mediaAssetId], references: [id])
+  posterAssetId String?
+  posterAsset   MediaAsset?  @relation("FeedPoster", fields: [posterAssetId], references: [id])
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+}

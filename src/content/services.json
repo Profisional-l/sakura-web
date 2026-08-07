@@ -1,0 +1,77 @@
+{
+  "hero": {
+    "title": "Your all-in-one digital innovation partner",
+    "subtitle": "Our deep expertise in design and technology powers exceptional brands and unforgettable digital experiences."
+  },
+  "sections": [
+    {
+      "id": "websites",
+      "title": "Websites",
+      "subtitle": "Your website is the cornerstone of your brand's online presence. Our portfolio showcases award-winning websites that deliver exceptional user experiences while aligning seamlessly with your business objectives.",
+      "services": [
+        "Web Design",
+        "Frontend & Backend Development",
+        "CMS Implementation",
+        "Content Production",
+        "Interactive Experiences",
+        "Content Strategy"
+      ],
+      "icon": "/media/services/servicesIcon01.webp"
+    },
+    {
+      "id": "digital-products",
+      "title": "Digital Products",
+      "subtitle": "At Sakura, we believe that everyone deserves an outstanding user experience, whether they're using a product at work or during their leisure time. We craft memorable enterprise and consumer products, and we also develop comprehensive design systems that enable seamless product iteration.",
+      "services": [
+        "UI Design",
+        "CX, UX & Interaction Design",
+        "Consumer & Enterprise Software",
+        "Design Systems",
+        "Motion Design",
+        "User Research & Testing"
+      ],
+      "icon": "/media/services/servicesIcon02.webp"
+    },
+    {
+      "id": "development",
+      "title": "Development",
+      "subtitle": "Our designers and developers work together to create websites and products that deliver exceptional user experiences and robust functionality. We prioritize search engine optimization, ensure accessibility, and enhance performance to achieve the best possible outcomes.",
+      "services": [
+        "Frontend Web Development",
+        "Mobile App Development",
+        "Backend Development & API Integration",
+        "Architecture Planning",
+        "Emerging Tech (AI, AR/VR, Wearables, Web3)"
+      ],
+      "icon": "/media/services/servicesIcon03.webp"
+    },
+    {
+      "id": "branding",
+      "title": "Branding",
+      "subtitle": "At the heart of our approach is the belief that brand and user experience are deeply intertwined. Our team excels in crafting and representing digital brand identities across multiple channels, offering strategic guidance and clear guidelines to ensure brand consistency.",
+      "services": [
+        "Brand Strategy",
+        "Brand Architecture",
+        "Verbal Identity",
+        "Visual Identity",
+        "Brand Guidelines",
+        "Brand Experiences"
+      ],
+      "icon": "/media/services/servicesIcon04.webp"
+    },
+    {
+      "id": "content",
+      "title": "Content",
+      "subtitle": "In the digital world, authentic content is crucial. We collaborate with brands to pinpoint their unique content needs and deliver bespoke, high-quality assets, meticulously crafted down to the finest detail.",
+      "services": [
+        "Illustration & Graphic Design",
+        "Art Direction",
+        "Iconography",
+        "Animation",
+        "Photo & Video",
+        "3D"
+      ],
+      "icon": "/media/services/servicesIcon05.webp"
+    }
+  ]
+}

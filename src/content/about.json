@@ -1,0 +1,34 @@
+{
+  "intro": {
+    "title": "About Sakura",
+    "subtitle": "A global agency specializing in branding, UX design, and digital innovation."
+  },
+  "stats": [
+    { "value": "24", "label": "Global Team Members" },
+    { "value": "7", "label": "Years In Business" },
+    { "value": "150+", "label": "Projects Delivered" },
+    { "value": "12", "label": "Countries Served" }
+  ],
+  "mission": {
+    "title": "Our Mission",
+    "text": "At Sakura Web Studio, we believe in the elegance and beauty of our namesake — the cherry blossom. Just as the cherry blossom symbolizes the peak of natural beauty, we strive to create the most stunning and effective digital solutions for your business."
+  },
+  "values": [
+    {
+      "title": "Innovation First",
+      "text": "We embrace cutting-edge technology and AI to push the boundaries of what's possible in digital design."
+    },
+    {
+      "title": "Client Partnership",
+      "text": "We collaborate closely with our clients as a unified team, blending human creativity with AI-powered efficiency."
+    },
+    {
+      "title": "Design Excellence",
+      "text": "Every pixel matters. We deliver visually captivating experiences that drive real business results."
+    }
+  ],
+  "team": {
+    "title": "Multidisciplinary Excellence",
+    "text": "Our multidisciplinary team brings together strategy, branding, UX design, and technology to deliver rapid and impactful results."
+  }
+}
