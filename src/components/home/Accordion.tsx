@@ -1,20 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ACCORDION_ITEMS } from "@/lib/constants";
 import { EASE_SAKURA } from "@/lib/motion";
 
 /**
  * Glass accordion — no transform/filter on the frosted buttons.
- * Entrance uses CSS only so backdrop-filter keeps working on desktop Chrome.
  */
 export function Accordion() {
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
-  const reduced = useReducedMotion();
 
   return (
-    <div className={`accordion-wrap ${reduced ? "" : "accordion-wrap-enter"}`}>
+    <div className="accordion-wrap">
       {ACCORDION_ITEMS.map((entry, index) => {
         const isActive = activeIndex === index;
 
@@ -22,7 +20,6 @@ export function Accordion() {
           <div
             key={entry.title}
             className={`accordion-item ${isActive ? "is-active" : ""}`}
-            style={reduced ? undefined : { animationDelay: `${index * 70}ms` }}
           >
             <button
               type="button"

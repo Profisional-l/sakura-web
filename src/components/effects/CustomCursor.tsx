@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 const INTERACTIVE_SELECTOR = "a, button, [role='button'], input, textarea, select, .portfolio-card";
 
+/**
+ * Lightweight ring cursor (no Framer, no backdrop-filter).
+ * Matches the original site's simple circle cursor behavior.
+ */
 export function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
-  const [hovering, setHovering] = useState(false);
-  const [visible, setVisible] = useState(false);
-
-  const rawX = useMotionValue(-100);
-  const rawY = useMotionValue(-100);
-  // left/top (not transform) so backdrop-filter can sample the page behind the ring.
-  const ringX = useSpring(rawX, { stiffness: 320, damping: 32, mass: 0.5 });
-  const ringY = useSpring(rawY, { stiffness: 320, damping: 32, mass: 0.5 });
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  const pos = useRef({ x: -100, y: -100, rx: -100, ry: -100, hovering: false, visible: false });
+  const raf = useRef(0);
 
   useEffect(() => {
     const fine = window.matchMedia("(pointer: fine)").matches;
@@ -25,46 +24,59 @@ export function CustomCursor() {
   useEffect(() => {
     if (!enabled) return;
 
-    const handleMove = (event: MouseEvent) => {
-      rawX.set(event.clientX);
-      rawY.set(event.clientY);
-      setVisible(true);
+    document.body.classList.add("has-custom-cursor");
 
-      const target = event.target as HTMLElement | null;
-      setHovering(Boolean(target?.closest(INTERACTIVE_SELECTOR)));
+    const tick = () => {
+      const p = pos.current;
+      p.rx += (p.x - p.rx) * 0.22;
+      p.ry += (p.y - p.ry) * 0.22;
+
+      const dot = dotRef.current;
+      const ring = ringRef.current;
+      if (dot) {
+        dot.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
+        dot.style.opacity = p.visible ? "1" : "0";
+        dot.classList.toggle("is-hovering", p.hovering);
+      }
+      if (ring) {
+        ring.style.transform = `translate3d(${p.rx}px, ${p.ry}px, 0)`;
+        ring.style.opacity = p.visible ? "1" : "0";
+        ring.classList.toggle("is-hovering", p.hovering);
+      }
+      raf.current = requestAnimationFrame(tick);
     };
 
-    const handleLeave = () => setVisible(false);
+    raf.current = requestAnimationFrame(tick);
 
-    window.addEventListener("mousemove", handleMove, { passive: true });
-    document.addEventListener("mouseleave", handleLeave);
+    const onMove = (event: MouseEvent) => {
+      pos.current.x = event.clientX;
+      pos.current.y = event.clientY;
+      pos.current.visible = true;
+      const target = event.target as HTMLElement | null;
+      pos.current.hovering = Boolean(target?.closest(INTERACTIVE_SELECTOR));
+    };
+
+    const onLeave = () => {
+      pos.current.visible = false;
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    document.addEventListener("mouseleave", onLeave);
 
     return () => {
-      window.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseleave", handleLeave);
+      cancelAnimationFrame(raf.current);
+      window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
+      document.body.classList.remove("has-custom-cursor");
     };
-  }, [enabled, rawX, rawY]);
-
-  useEffect(() => {
-    if (!enabled) return;
-    document.body.classList.add("has-custom-cursor");
-    return () => document.body.classList.remove("has-custom-cursor");
   }, [enabled]);
 
   if (!enabled) return null;
 
   return (
     <>
-      <motion.div
-        className={`cursor-dot ${hovering ? "is-hovering" : ""}`}
-        style={{ left: rawX, top: rawY, opacity: visible ? 1 : 0 }}
-        aria-hidden
-      />
-      <motion.div
-        className={`cursor-ring ${hovering ? "is-hovering" : ""}`}
-        style={{ left: ringX, top: ringY, opacity: visible ? 1 : 0 }}
-        aria-hidden
-      />
+      <div ref={dotRef} className="cursor-dot" aria-hidden />
+      <div ref={ringRef} className="cursor-ring" aria-hidden />
     </>
   );
 }
