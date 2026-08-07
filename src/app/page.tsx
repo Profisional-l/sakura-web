@@ -50,32 +50,35 @@ export default async function HomePage() {
       </section>
 
       <section className="short-info-block">
-        <Reveal className="text-for-infolist" direction="left" distance={54}>
-          <Parallax speed={0.06} className="sakura-tree-img-cont">
-            <Image
-              src="/media/images/sakuratree1_1.webp"
-              alt="Sakura tree"
-              width={250}
-              height={250}
-              className="sakura-tree-img"
-            />
-          </Parallax>
-          <h3 className="according-block-title">Sakura&apos;s Core Expertise</h3>
-          <p className="according-block-text">
-            We craft visionary digital experiences for top global brands, seamlessly
-            fusing AI, cutting-edge design, and advanced technology to redefine what&apos;s
-            possible. You dream — We build!
-          </p>
-          <div className="arrow-cont">
-            <Image
-              src="/media/images/arrow-down.png"
-              alt=""
-              width={17}
-              height={17}
-              className="down-arrow"
-            />
-          </div>
-        </Reveal>
+        {/* Glass stays on a static node — Motion transforms must not wrap backdrop-filter. */}
+        <div className="text-for-infolist">
+          <Reveal direction="left" distance={54}>
+            <Parallax speed={0.06} className="sakura-tree-img-cont">
+              <Image
+                src="/media/images/sakuratree1_1.webp"
+                alt="Sakura tree"
+                width={250}
+                height={250}
+                className="sakura-tree-img"
+              />
+            </Parallax>
+            <h3 className="according-block-title">Sakura&apos;s Core Expertise</h3>
+            <p className="according-block-text">
+              We craft visionary digital experiences for top global brands, seamlessly
+              fusing AI, cutting-edge design, and advanced technology to redefine what&apos;s
+              possible. You dream — We build!
+            </p>
+            <div className="arrow-cont">
+              <Image
+                src="/media/images/arrow-down.png"
+                alt=""
+                width={17}
+                height={17}
+                className="down-arrow"
+              />
+            </div>
+          </Reveal>
+        </div>
 
         <Accordion />
       </section>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import type { ElementType, ReactNode } from "react";
+import { useState, type ElementType, type ReactNode } from "react";
 import { EASE_SAKURA, REVEAL_OFFSETS, type RevealDirection } from "@/lib/motion";
 
 interface RevealProps {
@@ -11,7 +11,7 @@ interface RevealProps {
   delay?: number;
   duration?: number;
   distance?: number;
-  /** @deprecated CSS filter breaks backdrop-filter on children — ignored. */
+  /** @deprecated Ignored — CSS filter breaks backdrop-filter. */
   blur?: number;
   scale?: number;
   once?: boolean;
@@ -21,8 +21,8 @@ interface RevealProps {
 }
 
 /**
- * Scroll reveal. Intentionally avoids CSS `filter` — even `blur(0px)` creates a
- * filter containing block that disables `backdrop-filter` on glass UI inside.
+ * Scroll reveal that sheds Motion transforms after finishing.
+ * Leftover `transform` / `filter` on ancestors kills `backdrop-filter` glass on desktop Chrome.
  */
 export function Reveal({
   children,
@@ -38,11 +38,12 @@ export function Reveal({
   id,
 }: RevealProps) {
   const reduced = useReducedMotion();
+  const [settled, setSettled] = useState(false);
   const MotionTag = motion[as as keyof typeof motion] as typeof motion.div;
   const offset = REVEAL_OFFSETS[direction];
+  const Tag = as;
 
-  if (reduced) {
-    const Tag = as;
+  if (reduced || settled) {
     return (
       <Tag className={className} id={id}>
         {children}
@@ -61,8 +62,9 @@ export function Reveal({
         scale,
       }}
       whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-      viewport={{ once, amount, margin: "80px 0px" }}
+      viewport={{ once, amount, margin: "100px 0px" }}
       transition={{ duration, delay, ease: EASE_SAKURA }}
+      onAnimationComplete={() => setSettled(true)}
     >
       {children}
     </MotionTag>

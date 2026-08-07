@@ -1,44 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ACCORDION_ITEMS } from "@/lib/constants";
 import { EASE_SAKURA } from "@/lib/motion";
 
-const container: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08 } },
-};
-
-const item: Variants = {
-  hidden: { opacity: 0, y: 26 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: EASE_SAKURA },
-  },
-};
-
+/**
+ * Glass accordion — no transform/filter on the frosted buttons.
+ * Entrance uses CSS only so backdrop-filter keeps working on desktop Chrome.
+ */
 export function Accordion() {
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
   const reduced = useReducedMotion();
 
   return (
-    <motion.div
-      className="accordion-wrap"
-      variants={reduced ? undefined : container}
-      initial={reduced ? undefined : "hidden"}
-      whileInView={reduced ? undefined : "visible"}
-      viewport={{ once: true, amount: 0.05, margin: "100px 0px" }}
-    >
+    <div className={`accordion-wrap ${reduced ? "" : "accordion-wrap-enter"}`}>
       {ACCORDION_ITEMS.map((entry, index) => {
         const isActive = activeIndex === index;
 
         return (
-          <motion.div
+          <div
             key={entry.title}
             className={`accordion-item ${isActive ? "is-active" : ""}`}
-            variants={reduced ? undefined : item}
+            style={reduced ? undefined : { animationDelay: `${index * 70}ms` }}
           >
             <button
               type="button"
@@ -73,9 +57,9 @@ export function Accordion() {
                 )}
               </AnimatePresence>
             </button>
-          </motion.div>
+          </div>
         );
       })}
-    </motion.div>
+    </div>
   );
 }

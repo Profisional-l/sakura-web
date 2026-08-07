@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { EASE_SAKURA } from "@/lib/motion";
 
@@ -33,6 +33,7 @@ export function ProjectCard({
 }: ProjectCardProps) {
   const [active, setActive] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [entered, setEntered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -85,21 +86,8 @@ export function ProjectCard({
   const href = linkType === "CASE_STUDY" ? `/portfolio/${slug}` : externalUrl ?? "#";
   const isExternal = linkType === "EXTERNAL";
 
-  const card = (
-    <motion.div
-      ref={cardRef}
-      className={`portfolio-card ${active ? "is-active" : ""} ${className}`}
-      style={reduced ? undefined : { rotateX, rotateY, transformPerspective: 1100 }}
-      onPointerMove={handlePointerMove}
-      onMouseEnter={() => setActive(true)}
-      onMouseLeave={handleLeave}
-      onFocus={() => setActive(true)}
-      onBlur={handleLeave}
-      initial={reduced ? false : { opacity: 0, y: 48 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2, margin: "60px 0px" }}
-      transition={{ duration: 0.75, delay: (index % 3) * 0.1, ease: EASE_SAKURA }}
-    >
+  const inner = (
+    <>
       {!reduced && (
         <motion.span
           className="portfolio-card-glow"
@@ -135,8 +123,47 @@ export function ProjectCard({
       )}
 
       <span className="portfolio-card-label">{title}</span>
-    </motion.div>
+    </>
   );
+
+  const shellProps = {
+    ref: cardRef,
+    className: `portfolio-card ${active ? "is-active" : ""} ${className}`,
+    onPointerMove: handlePointerMove,
+    onMouseEnter: () => setActive(true),
+    onMouseLeave: handleLeave,
+    onFocus: () => setActive(true),
+    onBlur: handleLeave,
+  };
+
+  const tilt = (children: ReactNode) =>
+    reduced ? (
+      <div className="portfolio-card-tilt">{children}</div>
+    ) : (
+      <motion.div
+        className="portfolio-card-tilt"
+        style={{ rotateX, rotateY, transformPerspective: 1100 }}
+      >
+        {children}
+      </motion.div>
+    );
+
+  // After entrance, drop Motion on the glass shell so no leftover transform remains.
+  const card =
+    reduced || entered ? (
+      <div {...shellProps}>{tilt(inner)}</div>
+    ) : (
+      <motion.div
+        {...shellProps}
+        initial={{ opacity: 0, y: 36 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2, margin: "60px 0px" }}
+        transition={{ duration: 0.7, delay: (index % 3) * 0.1, ease: EASE_SAKURA }}
+        onAnimationComplete={() => setEntered(true)}
+      >
+        {tilt(inner)}
+      </motion.div>
+    );
 
   if (isExternal) {
     return (

@@ -33,6 +33,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* `clip` (not `hidden`) — overflow-x:hidden on root breaks backdrop-filter on desktop Chrome. */
+  overflow-x: clip;
 }
 
 html,
@@ -43,7 +45,10 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+}
+
+body {
+  overflow-x: clip;
 }
 
 ::-webkit-scrollbar {
@@ -164,11 +169,17 @@ body.has-custom-cursor * {
   width: 36px;
   height: 36px;
   margin: -18px 0 0 -18px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px) saturate(1.35);
-  -webkit-backdrop-filter: blur(14px) saturate(1.35);
-  box-shadow: 0 0 24px rgba(255, 146, 228, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  /* Soft “frost” even when OS disables backdrop-filter */
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.42), transparent 42%),
+    radial-gradient(circle at 70% 75%, rgba(255, 146, 228, 0.22), transparent 50%),
+    rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px) saturate(1.45);
+  -webkit-backdrop-filter: blur(16px) saturate(1.45);
+  box-shadow:
+    0 0 28px rgba(255, 146, 228, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transition: width 0.28s var(--ease-standard), height 0.28s var(--ease-standard),
     margin 0.28s var(--ease-standard), border-color 0.28s var(--ease-standard),
     background 0.28s var(--ease-standard), opacity 0.2s linear;
@@ -178,8 +189,11 @@ body.has-custom-cursor * {
   width: 56px;
   height: 56px;
   margin: -28px 0 0 -28px;
-  border-color: rgba(255, 146, 228, 0.9);
-  background: rgba(255, 146, 228, 0.12);
+  border-color: rgba(255, 146, 228, 0.95);
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.5), transparent 42%),
+    radial-gradient(circle at 70% 75%, rgba(255, 146, 228, 0.35), transparent 52%),
+    rgba(255, 146, 228, 0.16);
 }
 
 /* ═══ Page transition ═══ */
@@ -380,13 +394,13 @@ body.has-custom-cursor * {
   align-items: flex-start;
   padding: 6px 60px;
   height: 50px;
-  overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(24px) saturate(1.25);
-  -webkit-backdrop-filter: blur(24px) saturate(1.25);
+  overflow: clip;
+  background-color: rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(28px) saturate(1.35);
+  -webkit-backdrop-filter: blur(28px) saturate(1.35);
   transition: height 0.42s var(--ease-standard), background-color 0.4s var(--ease-standard),
-    border-color 0.4s var(--ease-standard), transform 0.5s var(--ease-standard);
-  border-bottom: 1px solid transparent;
+    border-color 0.4s var(--ease-standard);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   animation: headerReveal 0.55s 1.35s var(--ease-standard) backwards;
 }
 
@@ -411,7 +425,8 @@ body.has-custom-cursor * {
 }
 
 .site-header-bar.is-scrolled:not(.is-open) {
-  background-color: rgba(0, 0, 0, 0.74);
+  /* Keep translucent — too opaque and glass/blur disappears visually. */
+  background-color: rgba(0, 0, 0, 0.4);
   border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -891,13 +906,19 @@ body.has-custom-cursor * {
   padding: 25px;
   max-width: 600px;
   margin: 35px auto 0;
-  background-color: rgba(0, 0, 0, 0.2);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(40px) saturate(1.25);
-  -webkit-backdrop-filter: blur(40px) saturate(1.25);
+  background-color: rgba(0, 0, 0, 0.18);
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 146, 228, 0.05) 100%
+  );
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(40px) saturate(1.3);
+  -webkit-backdrop-filter: blur(40px) saturate(1.3);
   border-radius: var(--radius-sakura);
   border: solid 1px rgba(255, 255, 255, 0.18);
-  transition: border-color 0.5s var(--ease-standard), transform 0.6s var(--ease-standard);
+  transition: border-color 0.5s var(--ease-standard);
 }
 
 .text-for-infolist:hover {
@@ -976,6 +997,22 @@ body.has-custom-cursor * {
   margin: 10px 0;
 }
 
+@keyframes accordionItemIn {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+/* `backwards` only — do not leave translate/opacity fills that kill backdrop-filter. */
+.accordion-wrap-enter .accordion-item {
+  animation: accordionItemIn 0.55s var(--ease-standard) backwards;
+}
+
 .accordion-item button {
   width: 100%;
   padding: 20px 28px;
@@ -983,11 +1020,18 @@ body.has-custom-cursor * {
   outline: none;
   position: relative;
   border-radius: var(--radius-sakura-sm);
-  background-color: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(36px) saturate(1.25);
-  -webkit-backdrop-filter: blur(36px) saturate(1.25);
+  background-color: rgba(255, 255, 255, 0.07);
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.02) 48%,
+    rgba(255, 146, 228, 0.04) 100%
+  );
+  backdrop-filter: blur(36px) saturate(1.3);
+  -webkit-backdrop-filter: blur(36px) saturate(1.3);
   color: white;
-  border: solid 1px rgba(255, 255, 255, 0.14);
+  border: solid 1px rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   cursor: pointer;
   overflow: hidden;
   transition: background-color 0.4s var(--ease-standard),
@@ -1175,21 +1219,33 @@ body.has-custom-cursor * {
   position: relative;
   width: 100%;
   height: 300px;
-  background-color: rgba(61, 61, 61, 0.42);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background-color: rgba(61, 61, 61, 0.38);
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.02) 45%,
+    rgba(255, 146, 228, 0.06) 100%
+  );
+  backdrop-filter: blur(30px) saturate(1.25);
+  -webkit-backdrop-filter: blur(30px) saturate(1.25);
   color: white;
-  padding: 20px;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-sakura);
+  overflow: clip;
+  border: solid 1px rgba(255, 255, 255, 0.164);
+  transition: border-color 0.45s var(--ease-standard), box-shadow 0.45s var(--ease-standard);
+}
+
+.portfolio-card-tilt {
+  position: absolute;
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-  border: solid 1px rgba(255, 255, 255, 0.164);
+  padding: 20px;
+  border-radius: inherit;
   transform-style: preserve-3d;
-  transition: border-color 0.45s var(--ease-standard), box-shadow 0.45s var(--ease-standard);
 }
 
 .portfolio-card:hover {
@@ -1900,9 +1956,16 @@ html:has(.services-page) {
   padding: 30px 34px 34px;
   border-radius: var(--radius-sakura);
   border: solid 1px rgba(255, 255, 255, 0.15);
-  background-color: rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background-color: rgba(0, 0, 0, 0.18);
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 146, 228, 0.05) 100%
+  );
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(28px) saturate(1.3);
+  -webkit-backdrop-filter: blur(28px) saturate(1.3);
   max-width: 780px;
 }
 
@@ -2221,11 +2284,16 @@ html:has(.services-page) {
 /* ═══ Glass utility ═══ */
 .glass-panel {
   background: var(--color-glass);
-  backdrop-filter: blur(40px) saturate(1.2);
-  -webkit-backdrop-filter: blur(40px) saturate(1.2);
+  background-image: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 146, 228, 0.05) 100%
+  );
+  backdrop-filter: blur(40px) saturate(1.25);
+  -webkit-backdrop-filter: blur(40px) saturate(1.25);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  /* Promote a layer without using filter (filter kills nested backdrop-filter). */
-  transform: translateZ(0);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* ═══ Admin ═══ */
