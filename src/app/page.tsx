@@ -12,6 +12,9 @@ import { Parallax } from "@/components/motion/Parallax";
 import { ArrowLink } from "@/components/motion/ArrowLink";
 import { getFeaturedProjects } from "@/actions";
 
+// CMS-backed page — always read fresh data from Postgres.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };

@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import { getProjectBySlug } from "@/actions";
 import { CaseStudyLayout } from "@/components/portfolio/CaseStudyLayout";
 
+export const dynamic = "force-dynamic";
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

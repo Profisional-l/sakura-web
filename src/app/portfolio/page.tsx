@@ -3,6 +3,8 @@ import { getCategoriesWithFeed } from "@/actions";
 import { PortfolioClient } from "@/components/portfolio/PortfolioClient";
 import { RevealText } from "@/components/motion/RevealText";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Portfolio",
   description:

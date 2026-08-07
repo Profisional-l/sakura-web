@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: sakura
+      POSTGRES_PASSWORD: sakura
+      POSTGRES_DB: sakura
+    volumes:
+      - sakura_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sakura -d sakura"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  sakura_pg_data:
