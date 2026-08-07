@@ -1176,6 +1176,7 @@ body.has-custom-cursor * {
   position: relative;
   width: 100%;
   height: 300px;
+  padding: 20px;
   background-color: rgba(61, 61, 61, 0.486);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
@@ -1183,37 +1184,30 @@ body.has-custom-cursor * {
   text-align: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   border-radius: var(--radius-sakura);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
   border: solid 1px rgba(255, 255, 255, 0.164);
   transition: border-color 0.45s var(--ease-standard), box-shadow 0.45s var(--ease-standard);
 }
 
-.portfolio-card-tilt {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  border-radius: inherit;
-  transform-style: preserve-3d;
+@keyframes portfolioCardEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.portfolio-card-enter {
+  animation: portfolioCardEnter 0.65s var(--ease-standard) both;
 }
 
 .portfolio-card:hover {
   border-color: rgba(255, 146, 228, 0.45);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
-}
-
-.portfolio-card-glow {
-  position: absolute;
-  width: 420px;
-  height: 420px;
-  margin: -210px 0 0 -210px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 146, 228, 0.35), transparent 62%);
-  pointer-events: none;
-  z-index: 3;
-  opacity: 0;
 }
 
 .portfolio-card::after {
