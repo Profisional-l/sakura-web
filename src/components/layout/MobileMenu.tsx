@@ -31,7 +31,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             {NAV_LINKS.map((link, i) => (
               <motion.li
                 key={link.href}
-                initial={{ opacity: 0, y: 22 }}
+                initial={{ opacity: 0, y: 22, filter: "blur(8px)" }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.07, duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
               >

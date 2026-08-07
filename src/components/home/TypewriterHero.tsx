@@ -65,8 +65,8 @@ export function TypewriterHero() {
   return (
     <motion.h1
       className="hero-title"
-      initial={reduced ? false : { opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={reduced ? false : { opacity: 0, y: 24, filter: "blur(12px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       transition={{ duration: 0.9, ease: EASE_SAKURA, delay: reduced ? 0 : 1.3 }}
     >
       {displayText}

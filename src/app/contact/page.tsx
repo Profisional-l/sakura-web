@@ -29,25 +29,23 @@ export default function ContactPage() {
       />
 
       <div className="container-sakura contact-inner">
-        <div className="contact-block">
-          <Reveal direction="up" distance={40} duration={1}>
-            <RevealText as="h1" className="contact-title" text="Let's Talk" stagger={0.08} />
-            <p className="contact-subtitle">
-              We&apos;d love to learn more about you and what we can design and build together.
-            </p>
+        <Reveal className="contact-block" direction="up" distance={40} duration={1}>
+          <RevealText as="h1" className="contact-title" text="Let's Talk" stagger={0.08} />
+          <p className="contact-subtitle">
+            We&apos;d love to learn more about you and what we can design and build together.
+          </p>
 
-            <Stagger className="contact-mail" stagger={0.14}>
-              <StaggerItem>
-                <h3>Become a Client</h3>
-                <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
-              </StaggerItem>
-              <StaggerItem>
-                <h3>Work at Sakura</h3>
-                <a href={`mailto:${JOBS_EMAIL}`}>{JOBS_EMAIL}</a>
-              </StaggerItem>
-            </Stagger>
-          </Reveal>
-        </div>
+          <Stagger className="contact-mail" stagger={0.14}>
+            <StaggerItem>
+              <h3>Become a Client</h3>
+              <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+            </StaggerItem>
+            <StaggerItem>
+              <h3>Work at Sakura</h3>
+              <a href={`mailto:${JOBS_EMAIL}`}>{JOBS_EMAIL}</a>
+            </StaggerItem>
+          </Stagger>
+        </Reveal>
 
         <Reveal className="contact-form-block" direction="up" distance={32} delay={0.2}>
           <h2 className="contact-form-title">Send a message</h2>

@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 
 const INTERACTIVE_SELECTOR = "a, button, [role='button'], input, textarea, select, .portfolio-card";
 
-/**
- * Lightweight ring cursor (no Framer, no backdrop-filter).
- * Matches the original site's simple circle cursor behavior.
- */
 export function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
-  const dotRef = useRef<HTMLDivElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-  const pos = useRef({ x: -100, y: -100, rx: -100, ry: -100, hovering: false, visible: false });
-  const raf = useRef(0);
+  const [hovering, setHovering] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  const dotX = useMotionValue(-100);
+  const dotY = useMotionValue(-100);
+  const ringX = useSpring(dotX, { stiffness: 320, damping: 32, mass: 0.5 });
+  const ringY = useSpring(dotY, { stiffness: 320, damping: 32, mass: 0.5 });
 
   useEffect(() => {
     const fine = window.matchMedia("(pointer: fine)").matches;
@@ -24,59 +24,54 @@ export function CustomCursor() {
   useEffect(() => {
     if (!enabled) return;
 
-    document.body.classList.add("has-custom-cursor");
+    const handleMove = (event: MouseEvent) => {
+      dotX.set(event.clientX);
+      dotY.set(event.clientY);
+      setVisible(true);
 
-    const tick = () => {
-      const p = pos.current;
-      p.rx += (p.x - p.rx) * 0.22;
-      p.ry += (p.y - p.ry) * 0.22;
-
-      const dot = dotRef.current;
-      const ring = ringRef.current;
-      if (dot) {
-        dot.style.transform = `translate3d(${p.x}px, ${p.y}px, 0)`;
-        dot.style.opacity = p.visible ? "1" : "0";
-        dot.classList.toggle("is-hovering", p.hovering);
-      }
-      if (ring) {
-        ring.style.transform = `translate3d(${p.rx}px, ${p.ry}px, 0)`;
-        ring.style.opacity = p.visible ? "1" : "0";
-        ring.classList.toggle("is-hovering", p.hovering);
-      }
-      raf.current = requestAnimationFrame(tick);
-    };
-
-    raf.current = requestAnimationFrame(tick);
-
-    const onMove = (event: MouseEvent) => {
-      pos.current.x = event.clientX;
-      pos.current.y = event.clientY;
-      pos.current.visible = true;
       const target = event.target as HTMLElement | null;
-      pos.current.hovering = Boolean(target?.closest(INTERACTIVE_SELECTOR));
+      setHovering(Boolean(target?.closest(INTERACTIVE_SELECTOR)));
     };
 
-    const onLeave = () => {
-      pos.current.visible = false;
-    };
+    const handleLeave = () => setVisible(false);
 
-    window.addEventListener("mousemove", onMove, { passive: true });
-    document.addEventListener("mouseleave", onLeave);
+    window.addEventListener("mousemove", handleMove, { passive: true });
+    document.addEventListener("mouseleave", handleLeave);
 
     return () => {
-      cancelAnimationFrame(raf.current);
-      window.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseleave", onLeave);
-      document.body.classList.remove("has-custom-cursor");
+      window.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseleave", handleLeave);
     };
+  }, [enabled, dotX, dotY]);
+
+  useEffect(() => {
+    if (!enabled) return;
+    document.body.classList.add("has-custom-cursor");
+    return () => document.body.classList.remove("has-custom-cursor");
   }, [enabled]);
 
   if (!enabled) return null;
 
   return (
     <>
-      <div ref={dotRef} className="cursor-dot" aria-hidden />
-      <div ref={ringRef} className="cursor-ring" aria-hidden />
+      <motion.div
+        className="cursor-dot"
+        style={{ x: dotX, y: dotY }}
+        animate={{ opacity: visible ? 1 : 0, scale: hovering ? 0.4 : 1 }}
+        transition={{ duration: 0.22 }}
+        aria-hidden
+      />
+      <motion.div
+        className="cursor-ring"
+        style={{ x: ringX, y: ringY }}
+        animate={{
+          opacity: visible ? 1 : 0,
+          scale: hovering ? 1.7 : 1,
+          borderColor: hovering ? "rgba(255, 146, 228, 0.9)" : "rgba(255, 255, 255, 0.45)",
+        }}
+        transition={{ duration: 0.28 }}
+        aria-hidden
+      />
     </>
   );
 }

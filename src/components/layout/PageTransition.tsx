@@ -50,11 +50,17 @@ export function PageTransition({ children }: { children: ReactNode }) {
         )}
       </AnimatePresence>
 
-      {/* No opacity/filter/transform on <main>: those break backdrop-filter
-          on glass blocks (header/accordion) relative to the page backdrop. */}
-      <main key={pathname} className="min-h-screen">
+      {/* Only opacity is animated here: transform/filter on this element would
+          become the containing block for the fixed background videos inside. */}
+      <motion.main
+        key={pathname}
+        className="min-h-screen"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.55, ease: EASE_SAKURA, delay: 0.15 }}
+      >
         {children}
-      </main>
+      </motion.main>
     </>
   );
 }

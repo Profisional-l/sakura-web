@@ -3,6 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { EASE_SAKURA } from "@/lib/motion";
 
 interface ProjectCardProps {
   slug: string;
@@ -17,10 +19,6 @@ interface ProjectCardProps {
   className?: string;
 }
 
-/**
- * Portfolio card — CSS hover video (no Framer tilt).
- * Transform on the card shell breaks hover stacking + backdrop-filter.
- */
 export function ProjectCard({
   slug,
   title,
@@ -36,6 +34,21 @@ export function ProjectCard({
   const [active, setActive] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  const pointerX = useMotionValue(0.5);
+  const pointerY = useMotionValue(0.5);
+  const rotateX = useSpring(useTransform(pointerY, [0, 1], [7, -7]), {
+    stiffness: 180,
+    damping: 22,
+  });
+  const rotateY = useSpring(useTransform(pointerX, [0, 1], [-9, 9]), {
+    stiffness: 180,
+    damping: 22,
+  });
+  const glowX = useTransform(pointerX, (v) => `${v * 100}%`);
+  const glowY = useTransform(pointerY, (v) => `${v * 100}%`);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -46,35 +59,64 @@ export function ProjectCard({
   }, []);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    if (!videoRef.current) return;
     if (active && !reducedMotion) {
-      video.play().catch(() => undefined);
+      videoRef.current.play().catch(() => undefined);
     } else {
-      video.pause();
-      video.currentTime = 0;
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
     }
   }, [active, reducedMotion]);
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (reduced) return;
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    pointerX.set((event.clientX - rect.left) / rect.width);
+    pointerY.set((event.clientY - rect.top) / rect.height);
+  };
+
+  const handleLeave = () => {
+    setActive(false);
+    pointerX.set(0.5);
+    pointerY.set(0.5);
+  };
 
   const href = linkType === "CASE_STUDY" ? `/portfolio/${slug}` : externalUrl ?? "#";
   const isExternal = linkType === "EXTERNAL";
 
   const card = (
-    <div
-      className={`portfolio-card portfolio-card-enter ${active ? "is-active" : ""} ${className}`}
-      style={{ animationDelay: `${(index % 3) * 90}ms` }}
+    <motion.div
+      ref={cardRef}
+      className={`portfolio-card ${active ? "is-active" : ""} ${className}`}
+      style={reduced ? undefined : { rotateX, rotateY, transformPerspective: 1100 }}
+      onPointerMove={handlePointerMove}
       onMouseEnter={() => setActive(true)}
-      onMouseLeave={() => setActive(false)}
+      onMouseLeave={handleLeave}
       onFocus={() => setActive(true)}
-      onBlur={() => setActive(false)}
+      onBlur={handleLeave}
+      initial={reduced ? false : { opacity: 0, y: 48, filter: "blur(12px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.75, delay: (index % 3) * 0.1, ease: EASE_SAKURA }}
     >
+      {!reduced && (
+        <motion.span
+          className="portfolio-card-glow"
+          style={{ left: glowX, top: glowY }}
+          animate={{ opacity: active ? 0.65 : 0 }}
+          transition={{ duration: 0.4 }}
+          aria-hidden
+        />
+      )}
+
       {videoPath && !reducedMotion && (
         <video
           ref={videoRef}
           muted
           playsInline
           loop
-          preload="metadata"
+          preload="none"
           aria-hidden
           className={needBig ? "need-big" : ""}
         >
@@ -93,7 +135,7 @@ export function ProjectCard({
       )}
 
       <span className="portfolio-card-label">{title}</span>
-    </div>
+    </motion.div>
   );
 
   if (isExternal) {

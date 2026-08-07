@@ -105,8 +105,8 @@ export function ServicesSections({ hero, sections }: ServicesSectionsProps) {
         <div className="container-sakura services-hero-inner">
           <motion.div
             className="services-main-block"
-            initial={reduced ? false : { opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={reduced ? false : { opacity: 0, y: 30, filter: "blur(14px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 1, ease: EASE_SAKURA, delay: 0.3 }}
           >
             <h1 className="services-title">{hero.title}</h1>

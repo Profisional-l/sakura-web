@@ -51,7 +51,7 @@ Set for **Production** (and Preview if you want previews to work):
 |----------|----------|--------|
 | `DATABASE_URL` | yes | Neon pooled URL |
 | `DIRECT_URL` | yes | Neon direct URL |
-| `AUTH_SECRET` | **yes — critical** | Without it the site logs Auth.js 500 on `/api/auth/session`. Generate: `openssl rand -base64 32` |
+| `AUTH_SECRET` | yes | `openssl rand -base64 32` |
 | `AUTH_URL` | yes | `https://your-domain.vercel.app` (or custom domain) |
 | `NEXT_PUBLIC_SITE_URL` | yes | Same public origin as above |
 | `ADMIN_EMAIL` | for seed | Admin login email |

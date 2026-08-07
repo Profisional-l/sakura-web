@@ -1,25 +1,44 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion";
 import { ACCORDION_ITEMS } from "@/lib/constants";
 import { EASE_SAKURA } from "@/lib/motion";
 
-/**
- * Glass accordion — no transform/filter on the frosted buttons.
- */
+const container: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const item: Variants = {
+  hidden: { opacity: 0, y: 26 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: EASE_SAKURA },
+  },
+};
+
 export function Accordion() {
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
+  const reduced = useReducedMotion();
 
   return (
-    <div className="accordion-wrap">
+    <motion.div
+      className="accordion-wrap"
+      variants={reduced ? undefined : container}
+      initial={reduced ? undefined : "hidden"}
+      whileInView={reduced ? undefined : "visible"}
+      viewport={{ once: true, amount: 0.1 }}
+    >
       {ACCORDION_ITEMS.map((entry, index) => {
         const isActive = activeIndex === index;
 
         return (
-          <div
+          <motion.div
             key={entry.title}
             className={`accordion-item ${isActive ? "is-active" : ""}`}
+            variants={reduced ? undefined : item}
           >
             <button
               type="button"
@@ -54,9 +73,9 @@ export function Accordion() {
                 )}
               </AnimatePresence>
             </button>
-          </div>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }
