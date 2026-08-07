@@ -10,10 +10,11 @@ export function CustomCursor() {
   const [hovering, setHovering] = useState(false);
   const [visible, setVisible] = useState(false);
 
-  const dotX = useMotionValue(-100);
-  const dotY = useMotionValue(-100);
-  const ringX = useSpring(dotX, { stiffness: 320, damping: 32, mass: 0.5 });
-  const ringY = useSpring(dotY, { stiffness: 320, damping: 32, mass: 0.5 });
+  const rawX = useMotionValue(-100);
+  const rawY = useMotionValue(-100);
+  // left/top (not transform) so backdrop-filter can sample the page behind the ring.
+  const ringX = useSpring(rawX, { stiffness: 320, damping: 32, mass: 0.5 });
+  const ringY = useSpring(rawY, { stiffness: 320, damping: 32, mass: 0.5 });
 
   useEffect(() => {
     const fine = window.matchMedia("(pointer: fine)").matches;
@@ -25,8 +26,8 @@ export function CustomCursor() {
     if (!enabled) return;
 
     const handleMove = (event: MouseEvent) => {
-      dotX.set(event.clientX);
-      dotY.set(event.clientY);
+      rawX.set(event.clientX);
+      rawY.set(event.clientY);
       setVisible(true);
 
       const target = event.target as HTMLElement | null;
@@ -42,7 +43,7 @@ export function CustomCursor() {
       window.removeEventListener("mousemove", handleMove);
       document.removeEventListener("mouseleave", handleLeave);
     };
-  }, [enabled, dotX, dotY]);
+  }, [enabled, rawX, rawY]);
 
   useEffect(() => {
     if (!enabled) return;
@@ -55,21 +56,13 @@ export function CustomCursor() {
   return (
     <>
       <motion.div
-        className="cursor-dot"
-        style={{ x: dotX, y: dotY }}
-        animate={{ opacity: visible ? 1 : 0, scale: hovering ? 0.4 : 1 }}
-        transition={{ duration: 0.22 }}
+        className={`cursor-dot ${hovering ? "is-hovering" : ""}`}
+        style={{ left: rawX, top: rawY, opacity: visible ? 1 : 0 }}
         aria-hidden
       />
       <motion.div
-        className="cursor-ring"
-        style={{ x: ringX, y: ringY }}
-        animate={{
-          opacity: visible ? 1 : 0,
-          scale: hovering ? 1.7 : 1,
-          borderColor: hovering ? "rgba(255, 146, 228, 0.9)" : "rgba(255, 255, 255, 0.45)",
-        }}
-        transition={{ duration: 0.28 }}
+        className={`cursor-ring ${hovering ? "is-hovering" : ""}`}
+        style={{ left: ringX, top: ringY, opacity: visible ? 1 : 0 }}
         aria-hidden
       />
     </>

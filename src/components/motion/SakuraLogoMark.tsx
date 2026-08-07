@@ -43,9 +43,8 @@ export function SakuraLogoMark({
             initial={{
               x: startX,
               opacity: full ? 0 : 1,
-              filter: full ? "blur(8px)" : "blur(0px)",
             }}
-            animate={{ x: 0, opacity: 1, filter: "blur(0px)" }}
+            animate={{ x: 0, opacity: 1 }}
             transition={
               full
                 ? {
@@ -58,11 +57,6 @@ export function SakuraLogoMark({
                       duration: 0.85,
                       ease: EASE_SAKURA,
                       delay: delay + Math.abs(fromCenter) * 0.03,
-                    },
-                    filter: {
-                      duration: 1.25,
-                      ease: EASE_SAKURA,
-                      delay: delay + 0.08 + Math.abs(fromCenter) * 0.03,
                     },
                   }
                 : { duration: 0.25, ease: EASE_SAKURA }

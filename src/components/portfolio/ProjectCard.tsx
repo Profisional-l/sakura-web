@@ -95,9 +95,9 @@ export function ProjectCard({
       onMouseLeave={handleLeave}
       onFocus={() => setActive(true)}
       onBlur={handleLeave}
-      initial={reduced ? false : { opacity: 0, y: 48, filter: "blur(12px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, amount: 0.25 }}
+      initial={reduced ? false : { opacity: 0, y: 48 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2, margin: "60px 0px" }}
       transition={{ duration: 0.75, delay: (index % 3) * 0.1, ease: EASE_SAKURA }}
     >
       {!reduced && (

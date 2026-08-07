@@ -29,7 +29,7 @@ export function Accordion() {
       variants={reduced ? undefined : container}
       initial={reduced ? undefined : "hidden"}
       whileInView={reduced ? undefined : "visible"}
-      viewport={{ once: true, amount: 0.1 }}
+      viewport={{ once: true, amount: 0.05, margin: "100px 0px" }}
     >
       {ACCORDION_ITEMS.map((entry, index) => {
         const isActive = activeIndex === index;

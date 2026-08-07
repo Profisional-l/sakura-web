@@ -11,6 +11,7 @@ interface RevealProps {
   delay?: number;
   duration?: number;
   distance?: number;
+  /** @deprecated CSS filter breaks backdrop-filter on children — ignored. */
   blur?: number;
   scale?: number;
   once?: boolean;
@@ -19,6 +20,10 @@ interface RevealProps {
   id?: string;
 }
 
+/**
+ * Scroll reveal. Intentionally avoids CSS `filter` — even `blur(0px)` creates a
+ * filter containing block that disables `backdrop-filter` on glass UI inside.
+ */
 export function Reveal({
   children,
   as = "div",
@@ -26,10 +31,9 @@ export function Reveal({
   delay = 0,
   duration = 0.85,
   distance = 42,
-  blur = 10,
   scale = 1,
   once = true,
-  amount = 0.2,
+  amount = 0.15,
   className,
   id,
 }: RevealProps) {
@@ -54,11 +58,10 @@ export function Reveal({
         opacity: 0,
         x: offset.x * distance,
         y: offset.y * distance,
-        filter: `blur(${blur}px)`,
         scale,
       }}
-      whileInView={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 }}
-      viewport={{ once, amount }}
+      whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      viewport={{ once, amount, margin: "80px 0px" }}
       transition={{ duration, delay, ease: EASE_SAKURA }}
     >
       {children}
