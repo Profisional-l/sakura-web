@@ -577,7 +577,8 @@ body.has-custom-cursor * {
 }
 
 .sakura-atmosphere-hero {
-  z-index: -1;
+  /* Keep above the opaque body background — negative z-index hides blooms/blur on some browsers. */
+  z-index: 0;
 }
 
 .sakura-atmosphere-services {
@@ -1642,13 +1643,18 @@ body.has-custom-cursor * {
   background: rgba(0, 0, 0, 0.28);
   backdrop-filter: blur(0px);
   -webkit-backdrop-filter: blur(0px);
-  transition: opacity 0.7s var(--ease-standard), backdrop-filter 0.7s var(--ease-standard);
+  transition:
+    opacity 0.7s var(--ease-standard),
+    backdrop-filter 0.7s var(--ease-standard),
+    -webkit-backdrop-filter 0.7s var(--ease-standard);
+  /* Force a compositing layer so backdrop-filter paints reliably on Chromium. */
+  transform: translateZ(0);
 }
 
 .services-blur-bg.services-blur-active {
   opacity: 1;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(22px) saturate(1.15);
+  -webkit-backdrop-filter: blur(22px) saturate(1.15);
 }
 
 .services-dots {
