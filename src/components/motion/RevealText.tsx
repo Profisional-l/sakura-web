@@ -39,10 +39,10 @@ export function RevealText({
   };
 
   const word: Variants = {
-    hidden: { y: "110%", opacity: 0 },
+    // Clip reveal only — no opacity (safer around glass ancestors in Chrome).
+    hidden: { y: "110%" },
     visible: {
       y: "0%",
-      opacity: 1,
       transition: { duration: 0.75, ease: EASE_SAKURA },
     },
   };

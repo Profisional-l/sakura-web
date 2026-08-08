@@ -8,7 +8,6 @@ interface ParallaxProps {
   className?: string;
   speed?: number;
   scaleRange?: [number, number];
-  fade?: boolean;
 }
 
 export function Parallax({
@@ -16,7 +15,6 @@ export function Parallax({
   className,
   speed = 0.15,
   scaleRange,
-  fade = false,
 }: ParallaxProps) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -33,15 +31,18 @@ export function Parallax({
   });
 
   const y = useTransform(smooth, [0, 1], [`${speed * 100}%`, `${-speed * 100}%`]);
-  const scale = useTransform(smooth, [0, 0.5, 1], scaleRange ? [scaleRange[0], scaleRange[1], scaleRange[0]] : [1, 1, 1]);
-  const opacity = useTransform(smooth, [0, 0.25, 0.75, 1], fade ? [0.35, 1, 1, 0.35] : [1, 1, 1, 1]);
+  const scale = useTransform(
+    smooth,
+    [0, 0.5, 1],
+    scaleRange ? [scaleRange[0], scaleRange[1], scaleRange[0]] : [1, 1, 1]
+  );
 
   if (reduced) {
     return <div className={className}>{children}</div>;
   }
 
   return (
-    <motion.div ref={ref} className={className} style={{ y, scale, opacity }}>
+    <motion.div ref={ref} className={className} style={{ y, scale }}>
       {children}
     </motion.div>
   );

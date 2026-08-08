@@ -11,6 +11,7 @@ interface RevealProps {
   delay?: number;
   duration?: number;
   distance?: number;
+  /** @deprecated Ignored — filter on wrappers kills Chrome backdrop-filter glass. */
   blur?: number;
   scale?: number;
   once?: boolean;
@@ -19,6 +20,11 @@ interface RevealProps {
   id?: string;
 }
 
+/**
+ * Enter animation via transform only.
+ * Never animate opacity/filter here: they create a Chrome "backdrop root"
+ * and permanently break backdrop-filter on this node and its descendants.
+ */
 export function Reveal({
   children,
   as = "div",
@@ -26,9 +32,6 @@ export function Reveal({
   delay = 0,
   duration = 0.85,
   distance = 42,
-  // Default 0: filter on a parent creates a Chrome backdrop root and kills
-  // backdrop-filter glass on descendants. Opt in per-call when needed.
-  blur = 0,
   scale = 1,
   once = true,
   amount = 0.2,
@@ -53,13 +56,11 @@ export function Reveal({
       id={id}
       className={className}
       initial={{
-        opacity: 0,
         x: offset.x * distance,
         y: offset.y * distance,
-        filter: `blur(${blur}px)`,
         scale,
       }}
-      whileInView={{ opacity: 1, x: 0, y: 0, filter: "blur(0px)", scale: 1 }}
+      whileInView={{ x: 0, y: 0, scale: 1 }}
       viewport={{ once, amount }}
       transition={{ duration, delay, ease: EASE_SAKURA }}
     >

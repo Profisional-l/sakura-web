@@ -32,7 +32,7 @@ export function ContactForm() {
       <FormField name="email" label="Email" type="email" errors={errors.email} />
       <FormField name="company" label="Company (optional)" errors={errors.company} />
 
-      <div className="sakura-field">
+      <div className="sakura-form-field">
         <label className="sakura-label" htmlFor="message">
           Message
         </label>
@@ -93,7 +93,7 @@ function FormField({
   errors?: string[];
 }) {
   return (
-    <div className="sakura-field">
+    <div className="sakura-form-field">
       <label className="sakura-label" htmlFor={name}>
         {label}
       </label>

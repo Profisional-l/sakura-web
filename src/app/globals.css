@@ -156,8 +156,8 @@ body.has-custom-cursor * {
   height: 34px;
   margin: -17px 0 0 -17px;
   border: 1px solid rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 }
 
 /* ═══ Page transition ═══ */
@@ -169,8 +169,8 @@ body.has-custom-cursor * {
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.92);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   pointer-events: none;
 }
 
@@ -355,8 +355,8 @@ body.has-custom-cursor * {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 6px 60px;
+  align-items: center;
+  padding: 0 60px;
   height: 50px;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.55);
@@ -383,8 +383,39 @@ body.has-custom-cursor * {
 }
 
 .site-header-bar.is-open {
+  align-items: flex-start;
+  padding-top: 6px;
   height: 100vh;
+  height: 100dvh;
   background-color: rgba(0, 0, 0, 0.92);
+}
+
+/* Mobile menu: blur is a sibling at opacity 1 so Chrome keeps backdrop-filter. */
+.mobile-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(0, 0, 0, 0.72);
+  pointer-events: none;
+}
+
+.mobile-menu-blur {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
+  pointer-events: none;
+}
+
+.mobile-menu-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 100001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .site-header-bar.is-scrolled:not(.is-open) {
@@ -393,13 +424,17 @@ body.has-custom-cursor * {
 }
 
 .site-logo {
+  display: inline-flex;
+  align-items: center;
   font-size: 25px;
+  line-height: 1;
   z-index: 2;
   transition: color 0.44s;
 }
 
 .site-logo-text {
   display: inline-block;
+  line-height: 1;
   letter-spacing: 0;
   transition: letter-spacing 0.4s var(--ease-standard);
 }
@@ -414,17 +449,22 @@ body.has-custom-cursor * {
 
 .nav-desktop {
   display: flex;
+  align-items: center;
   gap: 39px;
   list-style: none;
   padding: 0;
   margin: 0;
+  height: 100%;
 }
 
 .nav-link {
   position: relative;
+  display: inline-flex;
+  align-items: center;
   color: #ffffff;
   font-size: 18px;
-  padding-bottom: 4px;
+  line-height: 1;
+  padding: 0;
   transition: color 0.35s var(--ease-standard);
 }
 
@@ -435,7 +475,7 @@ body.has-custom-cursor * {
 .nav-link-underline {
   position: absolute;
   left: 0;
-  bottom: 0;
+  bottom: -3px;
   width: 100%;
   height: 1px;
   background: var(--color-accent);
@@ -456,7 +496,7 @@ body.has-custom-cursor * {
 .nav-active-dot {
   position: absolute;
   left: 50%;
-  bottom: -8px;
+  bottom: -10px;
   width: 4px;
   height: 4px;
   margin-left: -2px;
@@ -542,7 +582,11 @@ body.has-custom-cursor * {
 
 @media (max-width: 900px) {
   .site-header-bar {
-    padding: 5px 20px;
+    padding: 0 20px;
+  }
+
+  .site-header-bar.is-open {
+    padding-top: 5px;
   }
 
   .nav-desktop {
@@ -685,7 +729,6 @@ body.has-custom-cursor * {
 .sakura-field-local {
   position: absolute;
   z-index: 2;
-  opacity: 0.95;
 }
 
 /* % is relative to the bloom itself — stable when mobile vh flickers. */
@@ -755,11 +798,11 @@ body.has-custom-cursor * {
 
 .main-block-fade-in {
   /* Glass on the element itself — never animate opacity here (Chrome backdrop root). */
-  background-color: rgba(0, 0, 0, 0.42);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  -webkit-backdrop-filter: blur(28px);
-  backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* background-color: rgba(0, 0, 0, 0.42); */
+  /* box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35); */
+  /* -webkit-backdrop-filter: blur(28px); */
+  /* backdrop-filter: blur(28px); */
+  /* border: 1px solid rgba(255, 255, 255, 0.1); */
   animation: glassBlockIn 1s 1.2s var(--ease-standard) both;
 }
 
@@ -889,17 +932,68 @@ body.has-custom-cursor * {
   padding: 25px;
   max-width: 600px;
   margin: 35px auto 0;
-  background-color: rgba(0, 0, 0, 0.24);
+  background-color: rgba(0, 0, 0, 0.45);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   border-radius: var(--radius-sakura);
   border: solid 1px rgba(255, 255, 255, 0.18);
-  transition: border-color 0.5s var(--ease-standard), transform 0.6s var(--ease-standard);
+  transition: border-color 0.5s var(--ease-standard), box-shadow 0.6s var(--ease-standard);
+  position: relative;
+  overflow: hidden;
+  will-change: transform, clip-path;
 }
 
 .text-for-infolist:hover {
   border-color: rgba(255, 146, 228, 0.32);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.38);
+}
+
+.expertise-card-shine {
+  position: absolute;
+  inset: -40% -60%;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 83, 177, 0.089) 48%,
+    rgba(255, 255, 255, 0.041) 52%,
+    transparent 65%
+  );
+  transform: translateX(-40%) rotate(8deg);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.expertise-card.is-lit .expertise-card-shine {
+  animation: expertiseShine 1.35s var(--ease-standard) 0.2s both;
+}
+
+.expertise-card:hover .expertise-card-shine {
+  animation: expertiseShine 1.2s var(--ease-standard) both;
+}
+
+@keyframes expertiseShine {
+  0% {
+    opacity: 0;
+    transform: translateX(-55%) rotate(8deg);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(55%) rotate(8deg);
+  }
+}
+
+.expertise-card-stack {
+  position: relative;
+  z-index: 2;
+}
+
+.expertise-card .sakura-tree-img {
+  transform-origin: center center;
 }
 
 .according-block-title {
@@ -981,9 +1075,9 @@ body.has-custom-cursor * {
   outline: none;
   position: relative;
   border-radius: var(--radius-sakura-sm);
-  background-color: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background-color: rgba(12, 12, 12, 0.55);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   color: white;
   border: solid 1px rgba(255, 255, 255, 0.14);
   cursor: pointer;
@@ -1046,9 +1140,9 @@ body.has-custom-cursor * {
   flex-wrap: wrap;
   color: #ffffff;
   border-radius: var(--radius-sakura);
-  background-color: rgba(31, 31, 31, 0.18);
-  backdrop-filter: blur(35px);
-  -webkit-backdrop-filter: blur(35px);
+  background-color: rgba(18, 18, 18, 0.55);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   border: solid 1px rgba(255, 255, 255, 0.2);
   overflow: hidden;
   height: min-content;
@@ -1173,9 +1267,9 @@ body.has-custom-cursor * {
   position: relative;
   width: 100%;
   height: 300px;
-  background-color: rgba(61, 61, 61, 0.42);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background-color: rgba(28, 28, 28, 0.58);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   color: white;
   padding: 20px;
   text-align: center;
@@ -1254,9 +1348,9 @@ body.has-custom-cursor * {
   font-size: 0.82rem;
   letter-spacing: 0.04em;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.62);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.16);
   opacity: 0;
   transform: translateY(8px);
@@ -1484,9 +1578,9 @@ body.has-custom-cursor * {
   cursor: pointer;
   color: #ffffff;
   position: relative;
-  background-color: rgba(36, 36, 36, 0.48);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background-color: rgba(22, 22, 22, 0.62);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   border-radius: 22px;
   margin: 10px;
   line-height: 17px;
@@ -1533,9 +1627,9 @@ body.has-custom-cursor * {
   padding: 0;
   height: fit-content;
   width: 100%;
-  background-color: rgba(61, 61, 61, 0.42);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background-color: rgba(28, 28, 28, 0.58);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   border-radius: var(--radius-sakura);
   border: solid 1px rgba(255, 255, 255, 0.164);
   overflow: hidden;
@@ -1576,8 +1670,8 @@ body.has-custom-cursor * {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   opacity: 0;
   transition: opacity 0.33s ease-in-out;
   z-index: 0;
@@ -1613,9 +1707,9 @@ body.has-custom-cursor * {
 
 .video-block .play-btn {
   z-index: 3;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
   width: 58px;
@@ -1632,9 +1726,9 @@ body.has-custom-cursor * {
   height: 46px;
   top: 12px;
   right: 12px;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
@@ -1657,19 +1751,21 @@ body.has-custom-cursor * {
 .services-blur-bg {
   position: fixed;
   inset: 0;
-  opacity: 0;
   pointer-events: none;
   z-index: 1;
-  background: rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(0px);
+  /* Keep opacity at 1 always — animate blur/background instead (Chrome backdrop root). */
+  opacity: 1;
+  background: rgba(0, 0, 0, 0);
   -webkit-backdrop-filter: blur(0px);
-  transition: opacity 0.7s var(--ease-standard), backdrop-filter 0.7s var(--ease-standard);
+  backdrop-filter: blur(0px);
+  transition: background 0.7s var(--ease-standard), backdrop-filter 0.7s var(--ease-standard),
+    -webkit-backdrop-filter 0.7s var(--ease-standard);
 }
 
 .services-blur-bg.services-blur-active {
-  opacity: 1;
-  backdrop-filter: blur(18px);
+  background: rgba(0, 0, 0, 0.32);
   -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
 }
 
 .services-dots {
@@ -1683,9 +1779,9 @@ body.has-custom-cursor * {
   z-index: 50;
   padding: 12px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px);
+  background: rgba(10, 10, 10, 0.55);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
 }
 
 .services-dot {
@@ -1893,9 +1989,9 @@ html:has(.services-page) {
   padding: 30px 34px 34px;
   border-radius: var(--radius-sakura);
   border: solid 1px rgba(255, 255, 255, 0.15);
-  background-color: rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background-color: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   max-width: 780px;
 }
 
@@ -2013,9 +2109,9 @@ html:has(.services-page) {
 }
 
 .about-value-card {
-  background-color: rgba(36, 36, 36, 0.42);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(30px);
+  background-color: rgba(22, 22, 22, 0.62);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   border: solid 1px rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-sakura-sm);
   padding: 2rem;
@@ -2142,7 +2238,8 @@ html:has(.services-page) {
   max-width: 32rem;
 }
 
-.sakura-field {
+/* Form fields — do not reuse .sakura-field (that's the petal canvas). */
+.sakura-form-field {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -2155,7 +2252,7 @@ html:has(.services-page) {
   transition: color 0.3s var(--ease-standard);
 }
 
-.sakura-field:focus-within .sakura-label {
+.sakura-form-field:focus-within .sakura-label {
   color: var(--color-accent);
 }
 
@@ -2213,7 +2310,7 @@ html:has(.services-page) {
 
 /* ═══ Glass utility ═══ */
 .glass-panel {
-  background: rgba(18, 18, 18, 0.72);
+  background: rgba(14, 14, 14, 0.72);
   -webkit-backdrop-filter: blur(28px);
   backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.08);

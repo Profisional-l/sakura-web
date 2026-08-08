@@ -16,6 +16,7 @@ export const TYPEWRITER_PHRASES = [
   "Sakura is a global agency specializing in branding and UX design.",
   "We create cutting-edge digital experiences for leading global brands.",
   "Dream it. We Build it.",
+  "Sakura is a global agency specializing in branding and UX design.",
 ];
 
 export const ACCORDION_ITEMS = [

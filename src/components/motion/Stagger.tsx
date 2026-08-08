@@ -74,10 +74,10 @@ export function StaggerItem({
     return <Tag className={className}>{children}</Tag>;
   }
 
+  // Transform-only: opacity on glass cards (about-value-card etc.) kills backdrop-filter in Chrome.
   const item: Variants = {
-    hidden: { opacity: 0, y: distance },
+    hidden: { y: distance },
     visible: {
-      opacity: 1,
       y: 0,
       transition: { duration, ease: EASE_SAKURA },
     },

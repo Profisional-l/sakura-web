@@ -14,18 +14,16 @@ const slideContainer: Variants = {
 };
 
 const slideItem: Variants = {
-  hidden: { opacity: 0, x: -28 },
+  hidden: { x: -28 },
   visible: {
-    opacity: 1,
     x: 0,
     transition: { duration: 0.7, ease: EASE_SAKURA },
   },
 };
 
 const illustrationVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.86, rotate: -6 },
+  hidden: { scale: 0.86, rotate: -6 },
   visible: {
-    opacity: 1,
     scale: 1,
     rotate: 0,
     transition: { duration: 1.1, ease: EASE_SAKURA },
@@ -105,8 +103,8 @@ export function ServicesSections({ hero, sections }: ServicesSectionsProps) {
         <div className="container-sakura services-hero-inner">
           <motion.div
             className="services-main-block"
-            initial={reduced ? false : { opacity: 0, y: 30, filter: "blur(14px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={reduced ? false : { y: 30 }}
+            animate={{ y: 0 }}
             transition={{ duration: 1, ease: EASE_SAKURA, delay: 0.3 }}
           >
             <h1 className="services-title">{hero.title}</h1>

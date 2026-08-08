@@ -26,6 +26,9 @@ interface Petal {
   opacity: number;
   hue: number;
   spin: number;
+  /** Extra lateral velocity from cursor gusts. */
+  vx: number;
+  vy: number;
 }
 
 interface Orb {
@@ -63,6 +66,8 @@ function createPetal(w: number, h: number, seeded: boolean, mode: FieldMode): Pe
     opacity: (near ? 0.35 : 0.12) + Math.random() * 0.35,
     hue: HUES[Math.floor(Math.random() * HUES.length)],
     spin: Math.random() * Math.PI,
+    vx: 0,
+    vy: 0,
   };
 }
 
@@ -85,9 +90,14 @@ function createOrb(w: number, h: number, mode: FieldMode): Orb {
   };
 }
 
-function drawPetal(ctx: CanvasRenderingContext2D, p: Petal, windX: number, windY: number) {
+function drawPetal(
+  ctx: CanvasRenderingContext2D,
+  p: Petal,
+  leanX: number,
+  leanY: number
+) {
   ctx.save();
-  ctx.translate(p.x + windX * p.z * 18, p.y + windY * p.z * 8);
+  ctx.translate(p.x + leanX, p.y + leanY);
   ctx.rotate(p.rotation);
   ctx.scale(1, 0.62 + Math.sin(p.spin) * 0.18);
   ctx.globalAlpha = p.opacity;
@@ -125,7 +135,6 @@ function drawOrb(ctx: CanvasRenderingContext2D, o: Orb) {
 
 /**
  * Procedural sakura atmosphere — depth petals + soft bloom orbs + cursor wind.
- * Replaces heavy looping 3D videos as the brand ambient language.
  */
 export function SakuraField({
   density = 28,
@@ -151,6 +160,9 @@ export function SakuraField({
     if (!ctx) return;
 
     const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
+    const windEnabled = finePointer && !coarse;
+
     const orbCount = mode === "ambient" ? 2 : mode === "hero" ? 4 : 5;
     const count = Math.max(
       8,
@@ -163,11 +175,18 @@ export function SakuraField({
     let orbs: Orb[] = [];
     let frame = 0;
     let running = true;
-    let pointerX = 0.5;
-    let pointerY = 0.5;
-    let windX = 0;
-    let windY = 0;
     let t = 0;
+
+    // Cursor wind state (desktop only)
+    let pointerX = w * 0.5;
+    let pointerY = h * 0.5;
+    let prevPointerX = pointerX;
+    let prevPointerY = pointerY;
+    let velX = 0;
+    let velY = 0;
+    let gustX = 0;
+    let gustY = 0;
+    let lastPointerTs = performance.now();
 
     const applyCanvasSize = (nextW: number, nextH: number) => {
       const dpr = Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 2);
@@ -205,16 +224,38 @@ export function SakuraField({
         o.ampY *= sy;
         o.r *= Math.min(sx, sy);
       }
+      pointerX *= sx;
+      pointerY *= sy;
+      prevPointerX = pointerX;
+      prevPointerY = pointerY;
     };
 
     applyCanvasSize(window.innerWidth, window.innerHeight);
+    pointerX = w * 0.5;
+    pointerY = h * 0.5;
+    prevPointerX = pointerX;
+    prevPointerY = pointerY;
     seed();
 
     const onPointer = (e: PointerEvent) => {
-      // Touch scroll fires pointer events and yanks the wind — skip on coarse.
-      if (coarse || e.pointerType === "touch") return;
-      pointerX = e.clientX / w;
-      pointerY = e.clientY / h;
+      if (!windEnabled || e.pointerType === "touch") return;
+
+      const now = performance.now();
+      const dt = Math.max(8, Math.min(48, now - lastPointerTs));
+      lastPointerTs = now;
+
+      const nx = e.clientX;
+      const ny = e.clientY;
+      // px-per-tick velocity — a bit hotter so slow mouse moves still register
+      const rawVx = ((nx - prevPointerX) / dt) * 22;
+      const rawVy = ((ny - prevPointerY) / dt) * 22;
+      prevPointerX = nx;
+      prevPointerY = ny;
+      pointerX = nx;
+      pointerY = ny;
+
+      velX = velX * 0.45 + rawVx * 0.55;
+      velY = velY * 0.45 + rawVy * 0.55;
     };
 
     const render = () => {
@@ -222,14 +263,17 @@ export function SakuraField({
       t += 1;
       const boost = intensityRef.current;
 
-      if (!coarse) {
-        const targetWindX = (pointerX - 0.5) * (0.55 + boost * 0.35);
-        const targetWindY = (pointerY - 0.5) * (0.25 + boost * 0.2);
-        windX += (targetWindX - windX) * 0.045;
-        windY += (targetWindY - windY) * 0.045;
+      if (windEnabled) {
+        // Gust from cursor velocity — moderate, local only.
+        gustX += (velX * 0.4 - gustX) * 0.14;
+        gustY += (velY * 0.28 - gustY) * 0.14;
+        gustX *= 0.93;
+        gustY *= 0.93;
+        velX *= 0.86;
+        velY *= 0.86;
       } else {
-        windX *= 0.92;
-        windY *= 0.92;
+        gustX *= 0.9;
+        gustY *= 0.9;
       }
 
       ctx.clearRect(0, 0, w, h);
@@ -243,18 +287,60 @@ export function SakuraField({
 
       if (t % 30 === 0) petals.sort((a, b) => a.z - b.z);
 
+      // Foreground petals only, near the cursor (~22% of viewport).
+      const influenceR = Math.min(w, h) * 0.22;
+      const influenceR2 = influenceR * influenceR;
+
       for (const p of petals) {
         p.sway += p.swaySpeed;
         p.spin += 0.02 + p.z * 0.02;
-        p.y += p.speedY * (1 + boost * 0.35);
-        p.x += p.speedX + Math.sin(p.sway) * (0.45 + p.z * 0.5) + windX * (0.6 + p.z);
-        p.rotation += p.rotationSpeed;
+
+        // z > 0.5 ≈ closer / larger petals
+        if (windEnabled && p.z > 0.5) {
+          const dx = p.x - pointerX;
+          const dy = p.y - pointerY;
+          const dist2 = dx * dx + dy * dy;
+
+          if (dist2 < influenceR2) {
+            const dist = Math.sqrt(dist2) || 1;
+            const falloff = 1 - dist / influenceR;
+            const strength = falloff * falloff * (0.55 + p.z * 0.45);
+
+            // Follow cursor motion (main “wind”)
+            p.vx += gustX * strength * 0.14;
+            p.vy += gustY * strength * 0.09;
+
+            // Light part around the cursor
+            const nx = dx / dist;
+            const ny = dy / dist;
+            p.vx += nx * strength * 0.2;
+            p.vy += ny * strength * 0.1;
+
+            p.rotation += (gustX - gustY) * strength * 0.002;
+          }
+
+          p.vx *= 0.91;
+          p.vy *= 0.91;
+          const vMax = 2.4;
+          const v = Math.hypot(p.vx, p.vy);
+          if (v > vMax) {
+            p.vx = (p.vx / v) * vMax;
+            p.vy = (p.vy / v) * vMax;
+          }
+        } else {
+          p.vx *= 0.8;
+          p.vy *= 0.8;
+        }
+
+        p.y += p.speedY * (1 + boost * 0.35) + p.vy;
+        p.x += p.speedX + Math.sin(p.sway) * (0.45 + p.z * 0.5) + p.vx;
+        p.rotation += p.rotationSpeed + p.vx * 0.008;
 
         if (p.y > h + p.size * 3) Object.assign(p, createPetal(w, h, false, mode));
         if (p.x < -p.size * 4) p.x = w + p.size;
         if (p.x > w + p.size * 4) p.x = -p.size;
 
-        drawPetal(ctx, p, windX, windY);
+        drawPetal(ctx, p, p.vx * 2.4, p.vy * 1.6);
       }
 
       frame = requestAnimationFrame(render);
@@ -272,11 +358,6 @@ export function SakuraField({
       }
     };
 
-    /**
-     * Mobile browsers fire `resize` when the URL bar shows/hides on scroll.
-     * Reseeding there makes petals/orbs jump. Only react to real layout changes
-     * (width / orientation), and never recreate particles for tiny height flicker.
-     */
     const onResize = () => {
       const nextW = window.innerWidth;
       const nextH = window.innerHeight;

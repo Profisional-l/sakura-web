@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { TypewriterHero } from "@/components/home/TypewriterHero";
 import { Accordion } from "@/components/home/Accordion";
 import { ProjectCard } from "@/components/portfolio/ProjectCard";
@@ -8,8 +7,8 @@ import { LazyVideo } from "@/components/ui/LazyVideo";
 import { SakuraAtmosphere } from "@/components/effects/SakuraAtmosphere";
 import { Reveal } from "@/components/motion/Reveal";
 import { RevealText } from "@/components/motion/RevealText";
-import { Parallax } from "@/components/motion/Parallax";
 import { ArrowLink } from "@/components/motion/ArrowLink";
+import { ExpertiseCard } from "@/components/home/ExpertiseCard";
 import { getFeaturedProjects } from "@/actions";
 
 // CMS-backed page — always read fresh data from Postgres.
@@ -50,33 +49,7 @@ export default async function HomePage() {
       </section>
 
       <section className="short-info-block">
-        <Reveal className="text-for-infolist" direction="left" distance={54}>
-          <Parallax speed={0.06} className="sakura-tree-img-cont">
-            <Image
-              src="/media/images/sakuratree1_1.webp"
-              alt="Sakura tree"
-              width={250}
-              height={250}
-              className="sakura-tree-img"
-            />
-          </Parallax>
-          <h3 className="according-block-title">Sakura&apos;s Core Expertise</h3>
-          <p className="according-block-text">
-            We craft visionary digital experiences for top global brands, seamlessly
-            fusing AI, cutting-edge design, and advanced technology to redefine what&apos;s
-            possible. You dream — We build!
-          </p>
-          <div className="arrow-cont">
-            <Image
-              src="/media/images/arrow-down.png"
-              alt=""
-              width={17}
-              height={17}
-              className="down-arrow"
-            />
-          </div>
-        </Reveal>
-
+        <ExpertiseCard />
         <Accordion />
       </section>
 

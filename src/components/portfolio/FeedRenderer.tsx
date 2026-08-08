@@ -13,9 +13,9 @@ const feedContainer: Variants = {
 };
 
 const feedItem: Variants = {
-  hidden: { opacity: 0, y: 34 },
+  // Transform-only so glass banners/cards keep backdrop-filter in Chrome.
+  hidden: { y: 34 },
   visible: {
-    opacity: 1,
     y: 0,
     transition: { duration: 0.7, ease: EASE_SAKURA },
   },
@@ -27,9 +27,8 @@ const tabsContainer: Variants = {
 };
 
 const tabItem: Variants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { y: 16 },
   visible: {
-    opacity: 1,
     y: 0,
     transition: { duration: 0.5, ease: EASE_SAKURA },
   },

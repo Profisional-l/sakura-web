@@ -16,8 +16,8 @@ export function ScrollArrow({ text, className = "", fast = false }: ScrollArrowP
   return (
     <motion.div
       className={`scroll-arrow-cont ${fast ? "scroll-arrow-fast" : ""} ${className}`}
-      initial={reduced ? false : { opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={reduced ? false : { y: 12 }}
+      animate={{ y: 0 }}
       transition={{ duration: 1, ease: EASE_SAKURA, delay: fast ? 1 : 2.4 }}
     >
       <p className="scroll-arrow-text">{text}</p>

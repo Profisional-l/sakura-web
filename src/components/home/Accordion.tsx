@@ -11,9 +11,9 @@ const container: Variants = {
 };
 
 const item: Variants = {
-  hidden: { opacity: 0, y: 26 },
+  // No opacity — parent opacity breaks backdrop-filter on the glass button.
+  hidden: { y: 26 },
   visible: {
-    opacity: 1,
     y: 0,
     transition: { duration: 0.6, ease: EASE_SAKURA },
   },
@@ -63,9 +63,9 @@ export function Accordion() {
                 {isActive && (
                   <motion.span
                     className="accordion-item-text"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
+                    initial={{ height: 0 }}
+                    animate={{ height: "auto" }}
+                    exit={{ height: 0 }}
                     transition={{ duration: 0.42, ease: EASE_SAKURA }}
                   >
                     <span className="accordion-item-text-inner">{entry.text}</span>

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { SakuraField } from "@/components/effects/SakuraField";
-import { EASE_SAKURA } from "@/lib/motion";
 
 interface SakuraAtmosphereProps {
   variant?: "hero" | "services";
@@ -29,7 +28,7 @@ export function SakuraAtmosphere({ variant = "hero", intensity = 0 }: SakuraAtmo
   const { scrollY } = useScroll();
   const smooth = useSpring(scrollY, { stiffness: 90, damping: 28, restDelta: 0.5 });
 
-  const heroOpacity = useTransform(smooth, [0, 720], [1, 0.15]);
+  // No opacity parallax — opacity on fixed layers is a Chrome backdrop-filter footgun nearby.
   const heroY = useTransform(smooth, [0, 900], [0, 80]);
   const heroScale = useTransform(smooth, [0, 900], [1, 1.06]);
 
@@ -67,10 +66,7 @@ export function SakuraAtmosphere({ variant = "hero", intensity = 0 }: SakuraAtmo
   return (
     <motion.div
       className="sakura-atmosphere sakura-atmosphere-hero"
-      style={{ opacity: heroOpacity, y: heroY, scale: heroScale }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1.8, ease: EASE_SAKURA, delay: 0.5 }}
+      style={{ y: heroY, scale: heroScale }}
       aria-hidden
     >
       {content}

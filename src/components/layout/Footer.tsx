@@ -12,9 +12,8 @@ const container: Variants = {
 };
 
 const item: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { y: 24 },
   visible: {
-    opacity: 1,
     y: 0,
     transition: { duration: 0.65, ease: EASE_SAKURA },
   },
@@ -64,7 +63,7 @@ export function Footer() {
           <li><Link href="#">Terms</Link></li>
           <li><Link href="#">Sitemap</Link></li>
         </ul>
-        <p>© 2025 Sakura, LLC</p>
+        <p>© {new Date().getFullYear()} Sakura, LLC</p>
       </motion.div>
     </motion.footer>
   );
