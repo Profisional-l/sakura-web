@@ -169,12 +169,12 @@ export function SakuraField({
     let windY = 0;
     let t = 0;
 
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+    const applyCanvasSize = (nextW: number, nextH: number) => {
+      const dpr = Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 2);
+      w = nextW;
+      h = nextH;
+      canvas.width = Math.max(1, Math.floor(w * dpr));
+      canvas.height = Math.max(1, Math.floor(h * dpr));
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -185,10 +185,34 @@ export function SakuraField({
       orbs = Array.from({ length: orbCount }, () => createOrb(w, h, mode));
     };
 
-    resize();
+    const rescale = (prevW: number, prevH: number) => {
+      if (!prevW || !prevH) {
+        seed();
+        return;
+      }
+      const sx = w / prevW;
+      const sy = h / prevH;
+      for (const p of petals) {
+        p.x *= sx;
+        p.y *= sy;
+      }
+      for (const o of orbs) {
+        o.cx *= sx;
+        o.cy *= sy;
+        o.x *= sx;
+        o.y *= sy;
+        o.ampX *= sx;
+        o.ampY *= sy;
+        o.r *= Math.min(sx, sy);
+      }
+    };
+
+    applyCanvasSize(window.innerWidth, window.innerHeight);
     seed();
 
     const onPointer = (e: PointerEvent) => {
+      // Touch scroll fires pointer events and yanks the wind — skip on coarse.
+      if (coarse || e.pointerType === "touch") return;
       pointerX = e.clientX / w;
       pointerY = e.clientY / h;
     };
@@ -198,14 +222,18 @@ export function SakuraField({
       t += 1;
       const boost = intensityRef.current;
 
-      const targetWindX = (pointerX - 0.5) * (0.55 + boost * 0.35);
-      const targetWindY = (pointerY - 0.5) * (0.25 + boost * 0.2);
-      windX += (targetWindX - windX) * 0.045;
-      windY += (targetWindY - windY) * 0.045;
+      if (!coarse) {
+        const targetWindX = (pointerX - 0.5) * (0.55 + boost * 0.35);
+        const targetWindY = (pointerY - 0.5) * (0.25 + boost * 0.2);
+        windX += (targetWindX - windX) * 0.045;
+        windY += (targetWindY - windY) * 0.045;
+      } else {
+        windX *= 0.92;
+        windY *= 0.92;
+      }
 
       ctx.clearRect(0, 0, w, h);
 
-      // Far bloom first — continuous Lissajous drift, no edge bounce / size jump
       const now = performance.now();
       for (const orb of orbs) {
         orb.x = orb.cx + Math.sin(now * orb.speed + orb.phase) * orb.ampX;
@@ -213,7 +241,6 @@ export function SakuraField({
         drawOrb(ctx, orb);
       }
 
-      // Sort occasionally for depth feel without per-frame cost
       if (t % 30 === 0) petals.sort((a, b) => a.z - b.z);
 
       for (const p of petals) {
@@ -245,9 +272,25 @@ export function SakuraField({
       }
     };
 
+    /**
+     * Mobile browsers fire `resize` when the URL bar shows/hides on scroll.
+     * Reseeding there makes petals/orbs jump. Only react to real layout changes
+     * (width / orientation), and never recreate particles for tiny height flicker.
+     */
     const onResize = () => {
-      resize();
-      seed();
+      const nextW = window.innerWidth;
+      const nextH = window.innerHeight;
+      const widthChanged = Math.abs(nextW - w) > 1;
+      const heightDelta = Math.abs(nextH - h);
+
+      if (!widthChanged && heightDelta < 140) {
+        return;
+      }
+
+      const prevW = w;
+      const prevH = h;
+      applyCanvasSize(nextW, nextH);
+      rescale(prevW, prevH);
     };
 
     window.addEventListener("pointermove", onPointer, { passive: true });

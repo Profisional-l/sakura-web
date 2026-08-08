@@ -26,7 +26,9 @@ export function Reveal({
   delay = 0,
   duration = 0.85,
   distance = 42,
-  blur = 10,
+  // Default 0: filter on a parent creates a Chrome backdrop root and kills
+  // backdrop-filter glass on descendants. Opt in per-call when needed.
+  blur = 0,
   scale = 1,
   once = true,
   amount = 0.2,

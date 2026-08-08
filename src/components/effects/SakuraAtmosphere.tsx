@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { SakuraField } from "@/components/effects/SakuraField";
 import { EASE_SAKURA } from "@/lib/motion";
@@ -16,6 +17,15 @@ interface SakuraAtmosphereProps {
  */
 export function SakuraAtmosphere({ variant = "hero", intensity = 0 }: SakuraAtmosphereProps) {
   const reduced = useReducedMotion();
+  const [allowParallax, setAllowParallax] = useState(false);
+
+  useEffect(() => {
+    // Scroll-linked transform on a fixed layer jitters on mobile (URL bar + rubber-band).
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const narrow = window.matchMedia("(max-width: 700px)").matches;
+    setAllowParallax(!coarse && !narrow);
+  }, []);
+
   const { scrollY } = useScroll();
   const smooth = useSpring(scrollY, { stiffness: 90, damping: 28, restDelta: 0.5 });
 
@@ -46,7 +56,7 @@ export function SakuraAtmosphere({ variant = "hero", intensity = 0 }: SakuraAtmo
     </>
   );
 
-  if (reduced || !isHero) {
+  if (reduced || !isHero || !allowParallax) {
     return (
       <div className={`sakura-atmosphere sakura-atmosphere-${variant}`} aria-hidden>
         {content}

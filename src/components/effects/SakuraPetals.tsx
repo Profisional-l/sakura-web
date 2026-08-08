@@ -132,8 +132,25 @@ export function SakuraPetals({ density = 26 }: { density?: number }) {
     };
 
     const handleResize = () => {
+      const nextW = window.innerWidth;
+      const nextH = window.innerHeight;
+      // Ignore mobile URL-bar height flicker on scroll.
+      if (Math.abs(nextW - width) < 2 && Math.abs(nextH - height) < 140) {
+        return;
+      }
+      const prevW = width;
+      const prevH = height;
       resize();
-      petals = Array.from({ length: count }, () => createPetal(width, height, true));
+      if (prevW && prevH) {
+        const sx = width / prevW;
+        const sy = height / prevH;
+        for (const petal of petals) {
+          petal.x *= sx;
+          petal.y *= sy;
+        }
+      } else {
+        petals = Array.from({ length: count }, () => createPetal(width, height, true));
+      }
     };
 
     document.addEventListener("visibilitychange", handleVisibility);

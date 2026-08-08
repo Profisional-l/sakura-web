@@ -24,43 +24,39 @@ export function PageTransition({ children }: { children: ReactNode }) {
     return () => clearTimeout(timer);
   }, [pathname, reduced]);
 
-  if (reduced) {
-    return <main className="min-h-screen">{children}</main>;
-  }
-
   return (
     <>
-      <AnimatePresence>
-        {wiping && (
-          <motion.div
-            className="page-wipe"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35, ease: EASE_SAKURA }}
-          >
-            <SakuraLogoMark
-              className="page-wipe-logo mask-logo"
-              mode="full"
-              spread={28}
-              duration={0.85}
-              delay={0.05}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {!reduced && (
+        <AnimatePresence>
+          {wiping && (
+            <motion.div
+              className="page-wipe"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35, ease: EASE_SAKURA }}
+            >
+              <SakuraLogoMark
+                className="page-wipe-logo mask-logo"
+                mode="full"
+                spread={28}
+                duration={0.85}
+                delay={0.05}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
 
-      {/* Only opacity is animated here: transform/filter on this element would
-          become the containing block for the fixed background videos inside. */}
-      <motion.main
-        key={pathname}
-        className="min-h-screen"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.55, ease: EASE_SAKURA, delay: 0.15 }}
-      >
+      {/*
+        Plain <main> on purpose: opacity/filter/will-change on an ancestor
+        becomes a Chrome "backdrop root" and kills backdrop-filter blur
+        on all glass UI inside (header-adjacent hero card, panels, etc.).
+        Safari is more forgiving — that's why iPhone looked fine.
+      */}
+      <main key={pathname} className="min-h-screen">
         {children}
-      </motion.main>
+      </main>
     </>
   );
 }

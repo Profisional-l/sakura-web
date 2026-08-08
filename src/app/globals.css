@@ -360,8 +360,8 @@ body.has-custom-cursor * {
   height: 50px;
   overflow: hidden;
   background-color: rgba(0, 0, 0, 0.55);
-  backdrop-filter: blur(28px) saturate(140%);
-  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   transition: height 0.42s var(--ease-standard), background-color 0.4s var(--ease-standard),
     border-color 0.4s var(--ease-standard), transform 0.5s var(--ease-standard);
   border-bottom: 1px solid transparent;
@@ -369,12 +369,11 @@ body.has-custom-cursor * {
 }
 
 @keyframes headerReveal {
+  /* Do not animate opacity on glass surfaces — Chrome drops backdrop-filter. */
   from {
-    opacity: 0;
     top: -60px;
   }
   to {
-    opacity: 1;
     top: 0;
   }
 }
@@ -570,7 +569,12 @@ body.has-custom-cursor * {
 /* ═══ Sakura atmosphere (procedural brand backdrop) ═══ */
 .sakura-atmosphere {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* lvh stays stable when mobile URL bar shows/hides on scroll (dvh/vh jump). */
+  height: 100vh;
+  height: 100lvh;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
@@ -597,10 +601,12 @@ body.has-custom-cursor * {
   position: absolute;
   border-radius: 50%;
   filter: blur(48px);
-  will-change: transform;
   opacity: 1;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  /* Contain paint so mobile compositor doesn't thrash on scroll. */
+  contain: layout paint;
+  backface-visibility: hidden;
 }
 
 .sakura-atmosphere-bloom-a {
@@ -682,30 +688,37 @@ body.has-custom-cursor * {
   opacity: 0.95;
 }
 
+/* % is relative to the bloom itself — stable when mobile vh flickers. */
 @keyframes sakuraBloomDriftA {
   0% { transform: translate3d(0, 0, 0); }
-  25% { transform: translate3d(-12vw, 8vh, 0); }
-  50% { transform: translate3d(-4vw, 18vh, 0); }
-  75% { transform: translate3d(10vw, 6vh, 0); }
+  25% { transform: translate3d(-18%, 12%, 0); }
+  50% { transform: translate3d(-6%, 28%, 0); }
+  75% { transform: translate3d(14%, 10%, 0); }
   100% { transform: translate3d(0, 0, 0); }
 }
 
 @keyframes sakuraBloomDriftB {
   0% { transform: translate3d(0, 0, 0); }
-  25% { transform: translate3d(8vw, -12vh, 0); }
-  50% { transform: translate3d(-10vw, -16vh, 0); }
-  75% { transform: translate3d(-14vw, 2vh, 0); }
+  25% { transform: translate3d(12%, -18%, 0); }
+  50% { transform: translate3d(-16%, -24%, 0); }
+  75% { transform: translate3d(-20%, 4%, 0); }
   100% { transform: translate3d(0, 0, 0); }
 }
 
 @keyframes sakuraBloomDriftC {
   0% { transform: translate3d(0, 0, 0); }
-  33% { transform: translate3d(14vw, 6vh, 0); }
-  66% { transform: translate3d(6vw, -12vh, 0); }
+  33% { transform: translate3d(22%, 10%, 0); }
+  66% { transform: translate3d(10%, -18%, 0); }
   100% { transform: translate3d(0, 0, 0); }
 }
 
 @media (max-width: 700px) {
+  .sakura-atmosphere-bloom {
+    /* Lighter blur = less GPU thrash while scrolling on phones. */
+    filter: blur(32px);
+    animation-duration: 40s;
+  }
+
   .sakura-atmosphere-bloom-a {
     right: -30%;
     top: 18%;
@@ -717,9 +730,19 @@ body.has-custom-cursor * {
     display: none;
   }
 
+  .sakura-atmosphere-bloom-c {
+    animation-duration: 32s;
+  }
+
   .sakura-atmosphere-mist {
     background:
       linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15) 40%, rgba(0, 0, 0, 0.55) 100%);
+  }
+
+  .sakura-field,
+  .sakura-field-local {
+    /* Promote a stable compositor layer; avoid scroll-linked repaints. */
+    transform: translateZ(0);
   }
 }
 
@@ -731,21 +754,21 @@ body.has-custom-cursor * {
 }
 
 .main-block-fade-in {
-  /* Base glass always on — Windows often skips huge/animated backdrop-filter. */
+  /* Glass on the element itself — never animate opacity here (Chrome backdrop root). */
   background-color: rgba(0, 0, 0, 0.42);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(28px) saturate(140%);
-  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: fadeBlur 1s 1.2s var(--ease-standard) both;
+  animation: glassBlockIn 1s 1.2s var(--ease-standard) both;
 }
 
-@keyframes fadeBlur {
-  0% {
-    opacity: 0;
+@keyframes glassBlockIn {
+  from {
+    transform: translateY(12px);
   }
-  100% {
-    opacity: 1;
+  to {
+    transform: translateY(0);
   }
 }
 
@@ -1323,10 +1346,9 @@ body.has-custom-cursor * {
 
 /* ═══ Footer ═══ */
 .site-footer {
-  /* Cap blur: Windows Chrome/Edge often drop backdrop-filter above ~40–64px. */
-  background-color: rgba(12, 12, 12, 0.78);
-  backdrop-filter: blur(40px) saturate(140%);
-  -webkit-backdrop-filter: blur(40px) saturate(140%);
+  background-color: rgba(12, 12, 12, 0.72);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   padding: 60px 20px 40px;
   position: relative;
   z-index: 4;
@@ -2192,8 +2214,8 @@ html:has(.services-page) {
 /* ═══ Glass utility ═══ */
 .glass-panel {
   background: rgba(18, 18, 18, 0.72);
-  backdrop-filter: blur(40px) saturate(140%);
-  -webkit-backdrop-filter: blur(40px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px);
+  backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
